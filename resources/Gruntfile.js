@@ -203,22 +203,28 @@ module.exports = function(grunt) {
 				command: [
 					'cd ..',
 					'git pull',
-					'cd dev/',								// nur in verbindung mit vagrant
-					'vagrant up',								// nur in verbindung mit vagrant
-					'open http://grunt-webseite.dev',		// nur in verbindung mit vagrant
-					'cd ../resources/',
+					'cd resources/',
 					'grunt'
 				].join('&&')
 			},
 			installTypo3: {
 				command: [
-					//'cd ..',
+					'cd ..',
 					'git submodule add git://git.typo3.org/Packages/TYPO3.CMS.git typo3_src',
 					'cd typo3_src',
 					'git checkout tags/TYPO3_8-2-1',
 					'cd ../public_html',
 					'ln -s ../typo3_src/index.php',
 					'ln -s ../typo3_src/typo3'
+				].join('&&')
+			},
+			push: {
+				command: [
+					'cd ..',
+					'git add .',
+					'git commit -m "Automatischer Upload"',
+					'git push origin master',
+					'cd resources/',
 				].join('&&')
 			}
 		}
@@ -237,5 +243,5 @@ module.exports = function(grunt) {
 	grunt.registerTask('browser-sync', ['browserSync']);
 	grunt.registerTask('start-working', ['shell:workflow']);
 	grunt.registerTask('install-typo3', ['shell:installTypo3']);
-	
+	grunt.registerTask('push', ['shell:push']);
 };
