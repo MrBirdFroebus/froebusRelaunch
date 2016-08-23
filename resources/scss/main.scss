@@ -1,0 +1,11 @@
+@import "_variables.scss";
+
+.example {
+  padding: 2em;
+  div {
+    background-color: blue;
+    padding: 3px;
+    text-align: center;
+    margin-bottom: 2em;
+  }
+}

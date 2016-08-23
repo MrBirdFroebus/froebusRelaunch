@@ -3,6 +3,7 @@ module.exports = function(grunt) {
 	var globalConfig = {
 		css:			'../public_html/css',
 		scss:			'scss',
+		fonts:			'../public_html/fonts',
 		scripts:		'../public_html/js',
 		scripts_src:	'js',
 		images:			'../public_html/images',
@@ -22,13 +23,58 @@ module.exports = function(grunt) {
 		compass: {
 			dist: {
 				options: {
-				// Config.rb für Compass. Die Konfiguration kann auch direkt hier hinein geschrieben werden,
-				// ist aber weniger übersichtlich.
-				// Wir legen deswegen eine zusätzliche config.rb an.
-					config: 'config.rb'
+					httpPath: "/",
+					cssDir: "<%= globalConfig.css %>",
+					sassDir: "<%= globalConfig.scss %>",
+					imagesDir: "<%= globalConfig.images %>",
+					relativeAssets: true ,
+					outputStyle:"compressed",
+					noLineComments: true
+				}
+			}
+		},
+		
+		// sudo npm install grunt-contrib-sass --save-dev
+		
+		sass: {
+			dist: {
+				options: {
+					style: 'compressed'
+				},
+				files: {
+					'<%= globalConfig.css %>/main.min.css': '<%= globalConfig.scss %>/main.scss'
 				}
 			}
 		}, 
+		
+		// sudo npm install grunt-contrib-copy --save-dev
+		
+		copy: {
+			styles: {
+				files: [{
+					expand:true,
+					cwd: 'node_modules/bootstrap/dist/css/',
+					src:['bootstrap.min.css','bootstrap.min.css.map'],
+					dest:'<%= globalConfig.css %>/'
+				}]
+			},
+			fonts: {
+				files: [{
+					expand:true,
+					cwd: 'node_modules/bootstrap/dist/fonts/',
+					src:['**'],
+					dest:'<%= globalConfig.fonts %>/'
+				}]
+			},
+			scripte: {
+				files: [{
+					expand:true,
+					cwd: 'node_modules/bootstrap/dist/js/',
+					src:['bootstrap.min.js'],
+					dest:'<%= globalConfig.scripts %>/'
+				}]
+			},
+		},
 		
 		// https://github.com/gruntjs/grunt-contrib-concat
 		// sudo npm install grunt-contrib-concat --save-dev
@@ -68,13 +114,19 @@ module.exports = function(grunt) {
 			// Beim Speichern von .scss Dateien
 			css: {
 				files: ['<%= globalConfig.scss %>/**/*.scss'],
-				tasks: ['compass']
+				tasks: ['sass']
+			},
+			// Beim Speichern von Bootstrap
+			bootstrap: {
+				files: ['node_modules/bootstrap/**/*.scss'],
+				tasks: ['sass']
 			},
 			// Beim Speichern von .js Dateien
-			scripts: {
-				files: '<%= globalConfig.scripts_src %>/**/*.js',
-				tasks: ['concat', 'uglify']
-			}
+			
+			//scripts: {
+			//	files: '<%= globalConfig.scripts_src %>/**/*.less',
+			//	tasks: ['copy']
+			//}
 		},
 	
 		// https://github.com/andismith/grunt-responsive-images
@@ -215,7 +267,16 @@ module.exports = function(grunt) {
 					'git checkout tags/TYPO3_8-2-1',
 					'cd ../public_html',
 					'ln -s ../typo3_src/index.php',
-					'ln -s ../typo3_src/typo3'
+					'ln -s ../typo3_src/typo3',
+					'push FIRST_INSTALL'
+				].join('&&')
+			},
+			typo3Update: {
+				command: [
+					'cd ..',
+					'cd typo3_src',
+					'git checkout tags/TYPO3_7-6-10',
+					'cd resources/',
 				].join('&&')
 			},
 			push: {
@@ -227,21 +288,20 @@ module.exports = function(grunt) {
 					'cd resources/',
 				].join('&&')
 			}
-		}
+		},
+		
+		
 		
 	});
 	
-	
-	
-	// Load the plugin that provides the "uglify" task.
-	grunt.loadNpmTasks('grunt-contrib-uglify');
-	
 	// Default task(s).
-	grunt.registerTask('default', ['watch']);
+	grunt.registerTask('watch', ['watch']);
+	grunt.registerTask('default', ['copy']);
 	grunt.registerTask('optimize-images', ['responsive_images', 'imagemin']);
 	grunt.registerTask('generate-touch-icons', ['favicons']);
 	grunt.registerTask('browser-sync', ['browserSync']);
 	grunt.registerTask('start-working', ['shell:workflow']);
 	grunt.registerTask('install-typo3', ['shell:installTypo3']);
+	grunt.registerTask('update-typo3', ['shell:typo3Update']);
 	grunt.registerTask('push', ['shell:push']);
 };

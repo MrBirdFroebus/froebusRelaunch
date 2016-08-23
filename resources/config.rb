@@ -1,8 +1,8 @@
 # Paths relative to Gruntfile.js
 http_path = "/"
-css_dir = "../source/css"
+css_dir = "../public_html/css"
 sass_dir = "scss"
-images_dir = "../source/images"
+images_dir = "../public_html/images"
 
 # relative Pfade auf Assets
 relative_assets = true #relative Pfade auf Assets
